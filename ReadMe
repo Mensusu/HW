@@ -1,0 +1,76 @@
+EE450 Socket Project
+Name:   Mengshu Zou
+Session: 2
+USC ID:  5168017819
+
+1.What I have done in the assignment.
+ 
+In this project, I built the socket connection structure between server A, server B ,aws and client. Firstly, I implement the part of server A. I wrote a Dijkstra function and map construction function and tested them separately. Then I implement the delay calculation part in server B. After implementing the process of socket sending and receive in aws and client, I began to test the function of socket. I build 2 struct to store data need to be send and receive. Finally, I normalized the output format.
+
+2.What my code files are and what each one of them does.
+ 
+aws.c: 
+	Communicate with client through a TCP socket to receive the input parameter and send the result.  
+	Communicate with server A through a UDP socket, send the map-id and start index to A and receive the shortest path from A. 		Communicate with server B through a UDP socket, send the shortest path result and file size to B and receive delay from B.
+client.c: 
+	Communicate with aws through a TCP socket. Read in map id, start index and file size from command line and send to aws. 
+	Receive result from aws and output.
+serverA.c: 
+	Communicate with aws through a UDP socket.
+	Read in the graph information from the map.txt and store in a vector. 
+	After receiving the map id and start index from aws, run Dijkstra function to find the shortest path and return the result to aws. 
+serverB.c:  
+	Communicate with aws through a UDP socket. 
+	Receive the shortest path result and file size from aws, then run calculation function to calculate transmitting dalay and propagation delay. Return the result to aws.
+
+3.The format of all the messages exchanged. 
+In client.c:  
+	User's input:  ./client <Map ID> <Source Vertex Index> <File Size> 
+ 			these parameters will be stored in an array: long long int send_buf[3]
+	result recieved from B:  RESULT recv_buf;
+
+In aws.c:
+			
+	recieve from client:  long long int client_recv[3];
+	send to A:  int sendto_A[2];
+	recieve from A:  MSE recv_A;				
+	send to B: MSE sendto_B;
+        recieve from B: double recv_B[SIZE][3];
+	send to client: RESULT sendto_client;
+				 
+In serverA.c: 
+
+	recieve fromm aws: int aws_rcv[2]; 
+	send to aws : MSE sendto_aws;
+
+In serverB.c:
+
+	recieve from aws: MSE recv_aws;
+	send to aws: double send[SIZE][3];
+
+typedef struct _inf 
+	{
+		int vexs[SIZE];
+		int start_index;
+		long long int file_size;
+		double prop_speed;
+		double trans_speed;
+		int len[SIZE];
+		int pre_nodes[SIZE];
+		int vexnum; 
+	}MSE;
+typedef struct _sendtoclient
+	{
+		int vexs[SIZE];
+		int len[SIZE];
+		int vexnum; 
+		double delay[SIZE][3];
+	}RESULT;
+
+4. Reused code
+	I use sample code from "Beej's Guide to Network Programming".The copy part of his code is commentted in the code file.
+	My Dijkstra Algorithm part is learned from online blog: https://www.includehelp.com/cpp-tutorial/dijkstras-algorithm.aspx.
+
+
+
+
